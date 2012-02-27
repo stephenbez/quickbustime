@@ -31,7 +31,7 @@ function getCurrentTimeString() {
 }
 
 function parseCtaTimeString(timeString) {
-    var d = Date.parseExact(timeString, "yyyyMMdd hh:mm");
+    var d = Date.parseExact(timeString, "yyyyMMdd HH:mm");
 
     return d;
 }

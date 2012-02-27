@@ -7,6 +7,10 @@ var config = require("./config");
 var bustime = require('./bustime').init(config.apiKey);
 require("datejs");
 
+function superLog() {
+    console.log(util.inspect(arguments, false, null));
+};
+
 String.format = function() {
   var s = arguments[0];
   for (var i = 0; i < arguments.length - 1; i++) {       
@@ -47,11 +51,44 @@ function getMinutesAway(arrivalTime) {
     return diff.getMinutes();
 }
 
+function getDirectionFromCode(code) {
+    if (code == "N") return "North Bound";
+    if (code == "S") return "South Bound";
+    if (code == "E") return "East Bound";
+    if (code == "W") return "West Bound";
+}
+
+app.get('/r/:route?/:direction?', function(req, res) {
+    var route = req.params.route
+
+    if (!route) {
+        res.send("not implemented yet");
+        return;
+    }
+
+    if (!req.params.direction) {
+        res.send("not implemented yet");
+        return;
+    }
+
+    var direction = getDirectionFromCode(req.params.direction);
+
+    bustime.request("getstops", { rt: route, dir: direction }, function(result) {
+//        superLog(result);
+        // TODO: check for errors
+        superLog(result["bustime-response"].stop);
+        res.render('stops.handlebars', {
+            routeNameAndDirection: route + " " + direction,
+            stops: result["bustime-response"].stop
+        });
+    });
+
+});
+
 app.get('/s/:id', function(req, res) {
     bustime.request("getpredictions", { stpid: req.params.id }, function(result) {
-        var stringResult = util.inspect(result, false, null);
-        console.log(stringResult);        
-// TODO: check for errors
+        superLog(result);
+        // TODO: check for errors
 
         var buses = result["bustime-response"].prd;
 

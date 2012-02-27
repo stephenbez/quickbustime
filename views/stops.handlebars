@@ -1,0 +1,15 @@
+<html>
+<head>
+<title>Stops for {{ routeNameAndDirection }}</title>
+</head>
+<body>
+Choose your stop:<br/><br/>
+
+{{#stops}}
+<a href="/s/{{stpid}}">{{stpnm}}</a><br/>
+{{/stops}}
+<br/>
+
+<a href="/">Back to homepage</a>
+</body>
+</html>

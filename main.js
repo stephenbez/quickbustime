@@ -77,9 +77,19 @@ app.get('/r/:route?/:direction?', function(req, res) {
 //        superLog(result);
         // TODO: check for errors
         superLog(result["bustime-response"].stop);
+
+        var stops = [];
+
+        _.forEach(result["bustime-response"].stop, function(stop) {
+            stops.push({
+                stopId: stop.stpid,
+                stopName: stop.stpnm.replace("&", " & ")
+            });
+        });
+
         res.render('stops.handlebars', {
             routeNameAndDirection: route + " " + direction,
-            stops: result["bustime-response"].stop
+            stops: stops 
         });
     });
 
@@ -97,14 +107,14 @@ app.get('/s/:id', function(req, res) {
         var lines = [];
 
         var handleBus = function(bus) {
-            stopName = bus.stpnm;
+            stopName = bus.stpnm.replace("&", " & ");
             routeDirection = bus.rtdir;
 
             var arrivalTime = parseCtaTimeString(bus.prdtm);
             var minutesAway = getMinutesAway(arrivalTime); 
             var arrivalTimeString = arrivalTime.toString("hh:mm tt");
 
-            lines.push(String.format("#{0} to {1}, {2} min, {3}", bus.rt, bus.des, minutesAway, arrivalTimeString));
+            lines.push(String.format("#{0} {1} to {2}, {3} min, {4}", bus.rt, bus.rtdir[0], bus.des, minutesAway, arrivalTimeString));
         };
 
         if (_.isArray(buses)) {
@@ -114,7 +124,8 @@ app.get('/s/:id', function(req, res) {
         }
 
         var context = {
-            stopNameAndDirection: stopName + " " + routeDirection,
+            // don't include direction for now, since for a given stop there can be multiple directions 
+            stopNameAndDirection: stopName,
             predictions: lines,
             currentTime: getCurrentTimeString()
         };

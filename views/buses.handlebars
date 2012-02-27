@@ -1,0 +1,17 @@
+<html>
+<head>
+<title>{{ stopNameAndDirection }}</title>
+<meta http-equiv="refresh" content="60">
+</head>
+<body>
+Currently: {{ currentTime }}<br/>
+Stop: {{ stopNameAndDirection }}<br/><br/>
+
+
+{{#predictions}}
+{{this}} <br/>
+{{/predictions}}
+<br/>
+Page auto-refreshes every 60 seconds.
+</body>
+</html>

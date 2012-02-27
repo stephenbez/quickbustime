@@ -22,8 +22,7 @@ var app = express.createServer();
 app.set('view options', { layout: false });
 
 app.get('/', function(req, res) {
-//    res.render('buses.ejs', { title: 'awesome' });
-    res.render('buses.h', { title: 'awesome' });
+    res.render('index.handlebars');
 });
 
 function getCurrentTimeString() {

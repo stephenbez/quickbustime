@@ -11,12 +11,6 @@ function superLog() {
     console.log(util.inspect(arguments, false, null));
 };
 
-// Xml2json will return a list when there are multiple children with the same name
-// and an object if there is only one.  This is a uniform way to iterate both
-function iterate(object, callback) {
-
-}
-
 String.format = function() {
   var s = arguments[0];
   for (var i = 0; i < arguments.length - 1; i++) {       
@@ -64,6 +58,12 @@ app.get('/r/:route?/:direction?', function(req, res) {
     if (!route) {
         bustime.request("getroutes", {}, function(result) {
             console.log(result);
+
+            if (result.error) {
+                handleErrors(res);
+                return;
+            }
+
             res.render('routes.handlebars', result);
         });
         return;
@@ -73,6 +73,11 @@ app.get('/r/:route?/:direction?', function(req, res) {
         bustime.request("getdirections", { rt: route }, function(result) {
             superLog(result);
             
+            if (result.error) {
+                handleErrors(res);
+                return;
+            }
+
             var directions = [];
             result.dir.forEach(function(direction) {
                 directions.push({
@@ -97,9 +102,12 @@ app.get('/r/:route?/:direction?', function(req, res) {
     var direction = getDirectionFromCode(req.params.direction);
 
     bustime.request("getstops", { rt: route, dir: direction }, function(result) {
-//        superLog(result);
-        // TODO: check for errors
-        superLog(result.stop);
+        superLog(result);
+
+        if (result.error) {
+            handleErrors(res);
+            return;
+        }
 
         var stops = [];
 
@@ -118,26 +126,42 @@ app.get('/r/:route?/:direction?', function(req, res) {
 
 });
 
+function handleErrors(res) {
+    res.render('error.handlebars');
+}
+
 app.get('/s/:id', function(req, res) {
     bustime.request("getpredictions", { stpid: req.params.id }, function(result) {
         superLog(result);
-        // TODO: check for errors
+
+        if (result.error) {
+            handleErrors(res);
+            return;
+        }
 
         var buses = result.prd;
 
+        if (req.query.rt) {
+            var split = req.query.rt.split("_");
+            var selectedRoute = split[0];
+            var routeDirectionCode = split[1];
+            var routeDirection = getDirectionFromCode(split[1]);
+        }
+
         var stopName = "";
-        var routeDirection = "";
         var lines = [];
 
         var handleBus = function(bus) {
             stopName = bus.stpnm.replace("&", " & ");
-            routeDirection = bus.rtdir;
+
+            if (selectedRoute && (bus.rt !== selectedRoute)) return;
 
             var arrivalTime = parseCtaTimeString(bus.prdtm);
             var minutesAway = getMinutesAway(arrivalTime); 
             var arrivalTimeString = arrivalTime.toString("hh:mm tt");
 
-            lines.push(String.format("#{0} {1} to {2}, {3} min, {4}", bus.rt, bus.rtdir[0], bus.des, minutesAway, arrivalTimeString));
+            lines.push(String.format("#{0} {1} to {2}, {3} min, {4}", bus.rt,
+                bus.rtdir[0], bus.des, minutesAway, arrivalTimeString));
         };
 
         if (_.isArray(buses)) {
@@ -146,17 +170,30 @@ app.get('/s/:id', function(req, res) {
             handleBus(buses);
         }
 
+        var selectedRouteName;
+        var stopNameAndDirection = stopName;
+        if (selectedRoute) {
+            stopNameAndDirection += " (" + routeDirection + ")";
+            selectedRouteName = selectedRouteName + " " + routeDirectionCode;
+        }
+
         var context = {
             // don't include direction for now, since for a given stop there can be multiple directions 
-            stopNameAndDirection: stopName,
+            stopNameAndDirection: stopNameAndDirection,
             predictions: lines,
-            currentTime: getCurrentTimeString()
+            currentTime: getCurrentTimeString(),
+            selectedRoute: selectedRoute || "all",
         };
 
         console.log(context);
 
         res.render('buses.handlebars', context);
     });   
+});
+
+// Handle not found, always keep as last route
+app.get("*", function(req, res) {
+    handleErrors(res);
 });
 
 var port = 3000;

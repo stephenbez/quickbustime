@@ -31,7 +31,7 @@ exports.init = function(apikey) {
 
             httpGetWholeResponse(options, function(response) {
                 var obj = parser.toJson(response, { object: true });
-                callback(obj);
+                callback(obj["bustime-response"]);
             });
         }
     }

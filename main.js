@@ -11,6 +11,12 @@ function superLog() {
     console.log(util.inspect(arguments, false, null));
 };
 
+// Xml2json will return a list when there are multiple children with the same name
+// and an object if there is only one.  This is a uniform way to iterate both
+function iterate(object, callback) {
+
+}
+
 String.format = function() {
   var s = arguments[0];
   for (var i = 0; i < arguments.length - 1; i++) {       
@@ -41,13 +47,7 @@ function parseCtaTimeString(timeString) {
 
 function getMinutesAway(arrivalTime) {
     var now = new Date(new Date().setSeconds(0,0));
-
-    console.log("diff", now, arrivalTime);
-
     var diff = new Date(arrivalTime - now);
-
-    console.log(diff);
-
     return diff.getMinutes();
 }
 
@@ -67,7 +67,9 @@ app.get('/r/:route?/:direction?', function(req, res) {
     }
 
     if (!req.params.direction) {
-        res.send("not implemented yet");
+        bustime.request("getdirections", { rt: route }, function(result) {
+            superLog(result);
+        });
         return;
     }
 
@@ -76,11 +78,11 @@ app.get('/r/:route?/:direction?', function(req, res) {
     bustime.request("getstops", { rt: route, dir: direction }, function(result) {
 //        superLog(result);
         // TODO: check for errors
-        superLog(result["bustime-response"].stop);
+        superLog(result.stop);
 
         var stops = [];
 
-        _.forEach(result["bustime-response"].stop, function(stop) {
+        _.forEach(result.stop, function(stop) {
             stops.push({
                 stopId: stop.stpid,
                 stopName: stop.stpnm.replace("&", " & ")
@@ -100,7 +102,7 @@ app.get('/s/:id', function(req, res) {
         superLog(result);
         // TODO: check for errors
 
-        var buses = result["bustime-response"].prd;
+        var buses = result.prd;
 
         var stopName = "";
         var routeDirection = "";
@@ -139,4 +141,4 @@ app.get('/s/:id', function(req, res) {
 var port = 3000;
 app.listen(3000);
 
-console.log("Open up a browser to localhost:" + port + "/s/<stop id>");
+console.log("Open up a browser to localhost:" + port); 

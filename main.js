@@ -62,14 +62,35 @@ app.get('/r/:route?/:direction?', function(req, res) {
     var route = req.params.route
 
     if (!route) {
-        res.send("not implemented yet");
+        bustime.request("getroutes", {}, function(result) {
+            console.log(result);
+            res.render('routes.handlebars', result);
+        });
         return;
     }
 
     if (!req.params.direction) {
         bustime.request("getdirections", { rt: route }, function(result) {
             superLog(result);
+            
+            var directions = [];
+            result.dir.forEach(function(direction) {
+                directions.push({
+                    route: route,
+                    stopDirection: direction[0],
+                    directionName: route + " " + direction
+                });
+            });
+
+            var context = {
+                routeName: route,
+                directions: directions
+            };
+
+            console.log(context);
+            res.render('directions.handlebars', context);
         });
+
         return;
     }
 

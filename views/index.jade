@@ -31,14 +31,18 @@ block head
 
 block body
     .container.
-        Route<br/>
-        Ex. '151' or '151 N'<br/>
-        <input id="route" type="text" name="route" class="span1"/><br/>
-        <button id="routeButton">Go</button><br/><br/>
-
-        Stop Id.<br/>
-        On the bus stop sign.  If it says Text "CTABUS XXXX", XXXX is the stop id.<br/>
-        <input id="stopId" type="text" name="stopid" class="span1"/><br/>
-        <button id="stopButton">Go</button><br/><br/> 
+        <div class="form-inline">
+            Route<br/>
+            Ex. '151' or '151 N'<br/>
+            <input id="route" type="text" name="route" class="span1"/>
+            <button id="routeButton">Go</button><br/><br/>
+        </div>
+    
+        <div class="form-inline">    
+            Stop id<br/>
+            On the bus stop sign.  If it says Text "CTABUS XXXX", XXXX is the stop id.<br/>
+            <input id="stopId" type="text" name="stopid" class="span1"/>
+            <button id="stopButton">Go</button><br/><br/> 
+        </div>
 
         <a href="/r">List routes</a><br/>

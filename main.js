@@ -1,15 +1,28 @@
-var http = require('http');
-var parser = require('xml2json');
 var util = require('util');
 var express = require('express');
 var _ = require('underscore');
 var config = require("./config");
 var bustime = require('./bustime').init(config.apiKey);
+var log4js = require('log4js');
 require("datejs");
+
+log4js.addAppender(log4js.fileAppender('/sitelogs/bustime.log'));
+var logger = log4js.getLogger();
 
 function superLog() {
     console.log(util.inspect(arguments, false, null));
 };
+
+// necessary because xml2json will sometimes return an array, othertimes just
+// an object depending on if there are duplicate keys
+
+function iterate(potentialCollection, callback) {
+    if (_.isArray(potentialCollection)) {
+        potentialCollection.forEach(callback);
+    } else {
+        callback(potentialCollection);
+    }
+}
 
 String.format = function() {
   var s = arguments[0];
@@ -80,7 +93,7 @@ app.get('/r/:route?/:direction?', function(req, res) {
             }
 
             var directions = [];
-            result.dir.forEach(function(direction) {
+            iterate(result.dir, function(direction) {
                 directions.push({
                     route: route,
                     stopDirection: direction[0],
@@ -112,7 +125,7 @@ app.get('/r/:route?/:direction?', function(req, res) {
 
         var stops = [];
 
-        _.forEach(result.stop, function(stop) {
+        iterate(result.stop, function(stop) {
             stops.push({
                 stopId: stop.stpid,
                 stopName: stop.stpnm.replace("&", " & ")
@@ -165,11 +178,7 @@ app.get('/s/:id', function(req, res) {
                 bus.rtdir[0], bus.des, minutesAway, arrivalTimeString));
         };
 
-        if (_.isArray(buses)) {
-            _.forEach(buses, handleBus);           
-        } else {
-            handleBus(buses);
-        }
+        iterate(buses, handleBus);
 
         var selectedRouteName;
         var stopNameAndDirection = stopName;

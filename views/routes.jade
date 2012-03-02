@@ -1,0 +1,14 @@
+extends layout
+
+block head
+    title Select Route
+
+block body
+    .container
+        | Choose your route:<br/><br/>
+
+        each r in route
+            | <a href="/r/#{r.rt}/">#{r.rt} - #{r.rtnm}</a><br/>
+
+        |<br/>
+        | <a href="/">Back to homepage</a>

@@ -22,11 +22,12 @@ String.format = function() {
 }
 
 var app = express.createServer();
-
 app.set('view options', { layout: false });
 
+app.use('/static', express.static(__dirname + '/static'));
+
 app.get('/', function(req, res) {
-    res.render('index.handlebars');
+    res.render('index.jade');
 });
 
 function getCurrentTimeString() {
@@ -64,7 +65,7 @@ app.get('/r/:route?/:direction?', function(req, res) {
                 return;
             }
 
-            res.render('routes.handlebars', result);
+            res.render('routes.jade', result);
         });
         return;
     }
@@ -93,7 +94,7 @@ app.get('/r/:route?/:direction?', function(req, res) {
             };
 
             console.log(context);
-            res.render('directions.handlebars', context);
+            res.render('directions.jade', context);
         });
 
         return;
@@ -118,7 +119,7 @@ app.get('/r/:route?/:direction?', function(req, res) {
             });
         });
 
-        res.render('stops.handlebars', {
+        res.render('stops.jade', {
             routeNameAndDirection: route + " " + direction,
             stops: stops 
         });
@@ -127,7 +128,7 @@ app.get('/r/:route?/:direction?', function(req, res) {
 });
 
 function handleErrors(res) {
-    res.render('error.handlebars');
+    res.render('error.jade');
 }
 
 app.get('/s/:id', function(req, res) {
@@ -186,8 +187,7 @@ app.get('/s/:id', function(req, res) {
         };
 
         console.log(context);
-
-        res.render('buses.handlebars', context);
+        res.render('buses.jade', context);
     });   
 });
 

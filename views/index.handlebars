@@ -1,4 +1,5 @@
-<html>
+<!DOCTYPE html>
+<html lang="en">
 <head>
 <title>Quick Bus Time</title>
 <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
@@ -32,20 +33,19 @@ $(document).ready(function() {
 </head>
 <body>
 <h1>Quick Bus Time</h1>
+Route<br/>
+Ex. '151' or '151 N'<br/>
+<input id="route" type="text" name="route" on/><br/>
+<button id="routeButton">Go</button><br/><br/>
 
 Stop Id.<br/>
 On the bus stop sign.  If it says Text "CTABUS XXXX", XXXX is the stop id.<br/>
 <input id="stopId" type="text" name="stopid" on/><br/>
 <button id="stopButton">Go</button><br/><br/> 
 
-
-Route<br/>
-Ex. '151' or '151 N'<br/>
-<input id="route" type="text" name="route" on/><br/>
-<button id="routeButton">Go</button><br/><br/>
-
 <a href="/r">List routes</a><br/>
 
+{{> footer}}
 
 </body>
 </html>

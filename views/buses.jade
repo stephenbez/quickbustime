@@ -1,0 +1,18 @@
+extends layout
+
+block head
+    title= stopNameAndDirection
+    meta(http-equiv='refresh, content='60')
+
+block body
+    .container
+        | Currently: #{currentTime}<br/>
+        | Stop: #{stopNameAndDirection}<br/>
+        | Selected route: #{selectedRoute}<br/><br/>
+
+        each prediction in predictions
+            | #{prediction} <br/>
+
+        | <br/><br/>
+        | Page auto-refreshes every 60 seconds.<br/>
+        | <a href="/">Back to homepage</a>

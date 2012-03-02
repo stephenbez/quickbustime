@@ -1,0 +1,14 @@
+extends layout
+
+block head
+    title Directions for #{ routeName }
+
+block body
+    .container
+        | Choose your direction:<br/><br/>
+
+        each d in directions
+            | <a href="/r/#{d.route}/#{d.stopDirection}">#{d.directionName}</a><br/>
+
+        | <br/>
+        | <a href="/">Back to homepage</a>

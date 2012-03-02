@@ -18,9 +18,17 @@ function httpGetWholeResponse(options, callback) {
 exports.init = function(apikey) {
     var host = "ctabustracker.com";
     var basePath = "/bustime/api/v1/";
+    var requests = 0;
 
     return {
         request: function(command, parameters, callback) {
+            requests += 1;
+
+            if (requests > 500) {
+                callback({ error: "Too many requests" });
+                return;
+            }
+ 
             parameters.key = apikey;
             var path = basePath + command + "?" + querystring.stringify(parameters);
 

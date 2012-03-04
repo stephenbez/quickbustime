@@ -37,8 +37,12 @@ String.format = function() {
 
 var routeToRouteNameString = fs.readFileSync("routeToRouteName.json");
 var routeToDirectionsString = fs.readFileSync("routeToDirections.json");
+var logFile = fs.createWriteStream('/sitelogs/bustimeWeb.log', {flags: 'a'}); //use {flags: 'w'} to open in write mode
 
 var app = express.createServer();
+
+app.use(express.logger({stream: logFile}));
+
 app.set('view options', { layout: false });
 
 app.use('/static', express.static(__dirname + '/static'));

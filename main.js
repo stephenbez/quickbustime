@@ -5,13 +5,14 @@ var config = require("./config");
 var bustime = require('./bustime').init(config.apiKey);
 var log4js = require('log4js');
 require("datejs");
+var fs = require('fs');
 
 log4js.addAppender(log4js.fileAppender('/sitelogs/bustime.log'));
 var logger = log4js.getLogger();
 
 function superLog() {
     console.log(util.inspect(arguments, false, null));
-};
+}
 
 // necessary because xml2json will sometimes return an array, othertimes just
 // an object depending on if there are duplicate keys
@@ -32,7 +33,10 @@ String.format = function() {
   }
 
   return s;
-}
+};
+
+var routeToRouteNameString = fs.readFileSync("routeToRouteName.json");
+var routeToDirectionsString = fs.readFileSync("routeToDirections.json");
 
 var app = express.createServer();
 app.set('view options', { layout: false });
@@ -40,7 +44,10 @@ app.set('view options', { layout: false });
 app.use('/static', express.static(__dirname + '/static'));
 
 app.get('/', function(req, res) {
-    res.render('index.jade');
+    res.render('index.jade', {
+        routeToRouteName: routeToRouteNameString,
+        routeToDirections: routeToDirectionsString
+    });
 });
 
 function getCurrentTimeString() {
@@ -67,7 +74,7 @@ function getDirectionFromCode(code) {
 }
 
 app.get('/r/:route?/:direction?', function(req, res) {
-    var route = req.params.route
+    var route = req.params.route;
 
     if (!route) {
         bustime.request("getroutes", {}, function(result) {

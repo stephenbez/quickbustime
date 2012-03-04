@@ -2,7 +2,10 @@ extends layout
 
 block head
     title QuickBusTime
-    script(type="text/javascript") 
+    script(type="text/javascript")
+        var routeToRouteName = !{routeToRouteName};
+        var routeToDirections = !{routeToDirections};
+
         $(document).ready(function() {
             function goStop() {
                 window.location = "s/" + $("#stopId").val();
@@ -27,22 +30,48 @@ block head
                 }
             });
 
+            function updateAutoComplete() {
+                $("#routeAutoComplete").empty();
+                var route = $("#route").val();
+                console.log("route", route);
+
+                var msg = "";
+                var directions = routeToDirections[route];
+                console.log("directions", directions);
+
+                if (directions) {
+                    for (var i = 0; i < directions.length; i++) {
+                        var direction = directions[i];
+                        var description = route + " - " + routeToRouteName[route] + " - " + direction;
+                        var url = "/r/" + route + "/" + direction[0];
+
+                        msg += "<a href='" + url + "'>" + description + "</a><br/>";
+                    }
+                }
+
+                $("#routeAutoComplete").html(msg);
+            }
+
+            $("#route").keyup(updateAutoComplete);
+
+            updateAutoComplete();
         });
 
 block body
     .container.
-        <div class="form-inline">
-            Route<br/>
-            Ex. '151' or '151 N'<br/>
-            <input id="route" type="text" name="route" class="span1"/>
-            <button id="routeButton">Go</button><br/><br/>
+        <p>For the Chicago Transit Authority</p>
+
+            <h3>Route</h3>
+            <input id="route" type="tel" name="route" class="span1"/>
+
+        <div id="routeAutoComplete">
         </div>
-    
-        <div class="form-inline">    
-            Stop id<br/>
+
+        <br/>
+        <h3>Stop id</h3>
+        <div class="form-inline">
             On the bus stop sign.  If it says Text "CTABUS XXXX", XXXX is the stop id.<br/>
             <input id="stopId" type="text" name="stopid" class="span1"/>
             <button id="stopButton">Go</button><br/><br/> 
         </div>
-
         <a href="/r">List routes</a><br/>

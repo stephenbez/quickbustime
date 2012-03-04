@@ -6,14 +6,20 @@ block head
         var routeToRouteName = !{routeToRouteName};
         var routeToDirections = !{routeToDirections};
 
+        function removeLetters(s) {
+            return s.replace(/[^\\d.]/g, "");
+        }
+
         // e.g. if pass in "8", return "8" and "8a"
         function getPossibleRoute(route) {
             var result = [];
 
+            var strippedRoute = removeLetters(route);
+
             for (var key in routeToRouteName) {
                 if (routeToRouteName.hasOwnProperty(key)) {
                     var strippedKey = key.replace(/[^\\d.]/g, "");
-                    if (route === strippedKey) {
+                    if (strippedRoute === strippedKey) {
                         result.push(key);
                     }
                 }

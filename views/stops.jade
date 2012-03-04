@@ -6,7 +6,7 @@ block head
 block body
     .container
         | #{ routeNameAndDirection }<br/><br/>
-        | Choose your stop:<br/><br/>
+        | Choose your stop:<br/>
         each s in stops
             | <a href="/s/#{s.stopId}">#{s.stopName}</a><br/>
-        | <a href="/">Back to homepage</a>
+        | <br/><a href="/">Back to homepage</a>

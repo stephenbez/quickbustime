@@ -2,7 +2,6 @@ extends layout
 
 block head
     title QuickBusTime
-    meta(http-equiv="refresh", content="60")
     script(type="text/javascript")
         var routeToRouteName = !{routeToRouteName};
         var routeToDirections = !{routeToDirections};
@@ -41,6 +40,8 @@ block head
             }
 
             $("#routeButton").click(goRoute);
+
+            $("#route").focus();
 
             $("#route").keypress(function(e) {
                 if (e.which === 13) {

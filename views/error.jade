@@ -5,5 +5,8 @@ block head
 
 block body
     .container
-        p Sorry, an error has occurred.  Please try something different
+        if message
+            p #{message}
+        else
+            p Sorry, an error has occurred.  Please try something different
         a(href="/") Back to homepage

@@ -2,7 +2,7 @@ extends layout
 
 block head
     title QuickBusTime
-    script    
+    script(type="text/javascript") 
         $(document).ready(function() {
             function goStop() {
                 window.location = "s/" + $("#stopId").val();

@@ -88,7 +88,7 @@ app.get('/r/:route?/:direction?', function(req, res) {
             superLog(result);
             
             if (result.error) {
-                handleErrors(res);
+                handleErrors(res, "Sorry that route doesn't exist");
                 return;
             }
 
@@ -119,7 +119,7 @@ app.get('/r/:route?/:direction?', function(req, res) {
         superLog(result);
 
         if (result.error) {
-            handleErrors(res);
+            handleErrors(res, "Could not find any stops for " + route + " " + direction);
             return;
         }
 
@@ -140,8 +140,8 @@ app.get('/r/:route?/:direction?', function(req, res) {
 
 });
 
-function handleErrors(res) {
-    res.render('error.jade');
+function handleErrors(res, message) {
+    res.render('error.jade', { message: message });
 }
 
 app.get('/s/:id', function(req, res) {
@@ -149,7 +149,11 @@ app.get('/s/:id', function(req, res) {
         superLog(result);
 
         if (result.error) {
-            handleErrors(res);
+            if (result.error.msg == "No service scheduled") {
+                handleErrors(res, "No service scheduled for this stop at this time");
+            } else {
+                handleErrors(res, "Sorry that stop doesn't exist");
+            }
             return;
         }
 

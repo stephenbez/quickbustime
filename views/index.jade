@@ -7,6 +7,23 @@ block head
         var routeToRouteName = !{routeToRouteName};
         var routeToDirections = !{routeToDirections};
 
+        // e.g. if pass in "8", return "8" and "8a"
+        function getPossibleRoute(route) {
+            var result = [];
+
+            for (var key in routeToRouteName) {
+                if (routeToRouteName.hasOwnProperty(key)) {
+                    var strippedKey = key.replace(/[^\\d.]/g, "");
+                    if (route === strippedKey) {
+                        result.push(key);
+                    }
+                }
+            }
+
+            return result;
+        }
+
+
         $(document).ready(function() {
             function goStop() {
                 window.location = "s/" + $("#stopId").val();
@@ -31,23 +48,33 @@ block head
                 }
             });
 
+
             function updateAutoComplete() {
                 $("#routeAutoComplete").empty();
                 var route = $("#route").val();
                 console.log("route", route);
 
+                var possibleRoutes = getPossibleRoute(route);
+
                 var msg = "";
-                var directions = routeToDirections[route];
-                console.log("directions", directions);
 
-                if (directions) {
-                    for (var i = 0; i < directions.length; i++) {
-                        var direction = directions[i];
-                        var description = route + " - " + routeToRouteName[route] + " - " + direction;
-                        var url = "/r/" + route + "/" + direction[0];
+                var addLinkForRoute = function(route) {
+                    var directions = routeToDirections[route];
+                    console.log("directions", directions);
 
-                        msg += "<a href='" + url + "'>" + description + "</a><br/>";
+                    if (directions) {
+                        for (var i = 0; i < directions.length; i++) {
+                            var direction = directions[i];
+                            var description = route + " - " + routeToRouteName[route] + " - " + direction;
+                            var url = "/r/" + route + "/" + direction[0];
+
+                            msg += "<a href='" + url + "'>" + description + "</a><br/>";
+                        }
                     }
+                }
+
+                for (var i = 0; i < possibleRoutes.length; i++) {
+                    addLinkForRoute(possibleRoutes[i]);
                 }
 
                 $("#routeAutoComplete").html(msg);

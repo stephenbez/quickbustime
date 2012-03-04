@@ -2,7 +2,12 @@ extends layout
 
 block head
     title= stopNameAndDirection
-    meta(http-equiv='refresh, content='60')
+    meta(http-equiv="refresh", content='60')
+    style
+        .big {
+            font-size: 20px;
+        }
+
 
 block body
     .container
@@ -10,8 +15,13 @@ block body
         | Stop: #{stopNameAndDirection}<br/>
         | Selected route: #{selectedRoute}<br/><br/>
 
-        each prediction in predictions
-            | #{prediction} <br/>
+        | <table class="table table-striped table-bordered" width="auto">
+        each p in predictions
+            | <tr>
+            | <td><strong><span class="big">##{p.route} #{p.directionCode}</span></strong><br/> to #{p.destination}</td>
+            | <td><strong><span class="big">#{p.minutesAway} min</span></strong><br/> #{p.arrivalTimeString}</td>
+            | </tr>
+        | </table>
 
         | <br/>
         | Page auto-refreshes every 60 seconds.<br/>

@@ -174,7 +174,7 @@ app.get('/s/:id', function(req, res) {
         }
 
         var stopName = "";
-        var lines = [];
+        var predictions = [];
 
         var handleBus = function(bus) {
             stopName = bus.stpnm.replace("&", " & ");
@@ -185,8 +185,13 @@ app.get('/s/:id', function(req, res) {
             var minutesAway = getMinutesAway(arrivalTime); 
             var arrivalTimeString = arrivalTime.toString("hh:mm tt");
 
-            lines.push(String.format("#{0} {1} to {2}, {3} min, {4}", bus.rt,
-                bus.rtdir[0], bus.des, minutesAway, arrivalTimeString));
+            predictions.push({
+                route: bus.rt,
+                directionCode: bus.rtdir[0],
+                destination: bus.des,
+                minutesAway: minutesAway,
+                arrivalTimeString: arrivalTimeString
+            });
         };
 
         iterate(buses, handleBus);
@@ -201,7 +206,7 @@ app.get('/s/:id', function(req, res) {
         var context = {
             // don't include direction for now, since for a given stop there can be multiple directions 
             stopNameAndDirection: stopNameAndDirection,
-            predictions: lines,
+            predictions: predictions,
             currentTime: getCurrentTimeString(),
             selectedRoute: selectedRoute || "all",
         };

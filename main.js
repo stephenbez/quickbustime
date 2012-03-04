@@ -6,12 +6,17 @@ var bustime = require('./bustime').init(config.apiKey);
 var log4js = require('log4js');
 require("datejs");
 var fs = require('fs');
+var isEmptyObject = require("jquery").isEmptyObject;
 
 log4js.addAppender(log4js.fileAppender('/sitelogs/bustime.log'));
 var logger = log4js.getLogger();
 
-function superLog() {
-    console.log(util.inspect(arguments, false, null));
+process.on('uncaughtException', function (err) {
+    logger.error('Caught exception: ' + err +  err.stack);
+});
+
+function inspect(obj) {
+    return util.inspect(obj, false, null);
 }
 
 // necessary because xml2json will sometimes return an array, othertimes just
@@ -73,15 +78,24 @@ function getDirectionFromCode(code) {
     if (code == "W") return "West Bound";
 }
 
+function isError(result) {
+    return isEmptyObject(result) || result.error;
+}
+
+function handleErrors(req, res, result, message) {
+    logger.error("url", req.url, "result", result, "message", message);
+    res.render('error.jade', { message: message });
+}
+
 app.get('/r/:route?/:direction?', function(req, res) {
     var route = req.params.route;
 
     if (!route) {
         bustime.request("getroutes", {}, function(result) {
-            console.log(result);
+            logger.info("url: " + req.url + "\nresult: " + inspect(result));
 
-            if (result.error) {
-                handleErrors(res);
+            if (isError(result)) {
+                handleErrors(req, res, result);
                 return;
             }
 
@@ -92,10 +106,10 @@ app.get('/r/:route?/:direction?', function(req, res) {
 
     if (!req.params.direction) {
         bustime.request("getdirections", { rt: route }, function(result) {
-            superLog(result);
+            logger.info("url: " + req.url + "\nresult: " + inspect(result));
             
-            if (result.error) {
-                handleErrors(res, "Sorry that route doesn't exist");
+            if (isError(result)) {
+                handleErrors(req, res, result, "Sorry that route doesn't exist");
                 return;
             }
 
@@ -113,7 +127,7 @@ app.get('/r/:route?/:direction?', function(req, res) {
                 directions: directions
             };
 
-            console.log(context);
+            logger.info(context);
             res.render('directions.jade', context);
         });
 
@@ -123,10 +137,10 @@ app.get('/r/:route?/:direction?', function(req, res) {
     var direction = getDirectionFromCode(req.params.direction);
 
     bustime.request("getstops", { rt: route, dir: direction }, function(result) {
-        superLog(result);
+        logger.info("url: " + req.url + "\nresult: " + inspect(result));
 
-        if (result.error) {
-            handleErrors(res, "Could not find any stops for " + route + " " + direction);
+        if (isError(result)) {
+            handleErrors(req, res, result, "Could not find any stops for " + route + " " + direction);
             return;
         }
 
@@ -147,19 +161,15 @@ app.get('/r/:route?/:direction?', function(req, res) {
 
 });
 
-function handleErrors(res, message) {
-    res.render('error.jade', { message: message });
-}
-
 app.get('/s/:id', function(req, res) {
     bustime.request("getpredictions", { stpid: req.params.id }, function(result) {
-        superLog(result);
+        logger.info("url: " + req.url + "\nresult: " + inspect(result));
 
-        if (result.error) {
-            if (result.error.msg == "No service scheduled") {
-                handleErrors(res, "No service scheduled for this stop at this time");
+        if (isError(result)) {
+            if (result.error && result.error.msg == "No service scheduled") {
+                handleErrors(req, res, result, "No service scheduled for this stop at this time");
             } else {
-                handleErrors(res, "Sorry that stop doesn't exist");
+                handleErrors(req, res, result, "Sorry that stop doesn't exist");
             }
             return;
         }
@@ -211,17 +221,18 @@ app.get('/s/:id', function(req, res) {
             selectedRoute: selectedRoute || "all",
         };
 
-        console.log(context);
+        logger.info(context);
+
         res.render('buses.jade', context);
     });   
 });
 
 // Handle not found, always keep as last route
 app.get("*", function(req, res) {
-    handleErrors(res);
+    handleErrors(req, res, {});
 });
 
 var port = 3000;
 app.listen(3000);
 
-console.log("Open up a browser to localhost:" + port); 
+logger.info("Open up a browser to localhost:" + port);

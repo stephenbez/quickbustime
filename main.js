@@ -52,6 +52,10 @@ app.set('view options', { layout: false });
 
 app.use('/static', express.static(__dirname + '/static'));
 
+app.get('/robots.txt', function(req, res) {
+    express.static(__dirname)(req, res);
+});
+
 app.get('/', function(req, res) {
     res.render('index.jade', {
         routeToRouteName: routeToRouteNameString,

@@ -59,13 +59,24 @@ app.get('/', function(req, res) {
     });
 });
 
+app.get('/getRequestsLeft', function(req, res) {
+    var left = bustime.getRequestsLeft();
+    res.send(left + " requests left");
+    logger.info("Left", left);
+});
+
+app.get('/resetRequests', function(req, res) {
+    bustime.resetRequests();
+    var current = bustime.getRequestsLeft();
+    res.send("Requests reseted. " + current + " requests left");
+});
+
 function getCurrentTimeString() {
    return new Date().toString("hh:mm tt"); 
 }
 
 function parseCtaTimeString(timeString) {
     var d = Date.parseExact(timeString, "yyyyMMdd HH:mm");
-
     return d;
 }
 
@@ -235,6 +246,11 @@ app.get('/s/:id', function(req, res) {
 app.get("*", function(req, res) {
     handleErrors(req, res, {});
 });
+
+setInterval(function() {
+    bustime.resetRequests();
+    logger.info("Requests reset");
+}, 24 * 60 * 60 * 1000);
 
 var port = 3000;
 app.listen(3000);

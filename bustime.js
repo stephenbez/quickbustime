@@ -15,16 +15,18 @@ function httpGetWholeResponse(options, callback) {
     });
 }
 
+var startingRequests = 4000;
+
 exports.init = function(apikey) {
     var host = "ctabustracker.com";
     var basePath = "/bustime/api/v1/";
-    var requests = 0;
+    var requests = startingRequests;
 
     return {
         request: function(command, parameters, callback) {
-            requests += 1;
+            requests -= 1;
 
-            if (requests > 500) {
+            if (requests <= 0) {
                 callback({ error: "Too many requests" });
                 return;
             }
@@ -41,6 +43,14 @@ exports.init = function(apikey) {
                 var obj = parser.toJson(response, { object: true });
                 callback(obj["bustime-response"]);
             });
+        },
+
+        resetRequests: function() {
+            requests = startingRequests;
+        },
+
+        getRequestsLeft: function() {
+            return requests;
         }
     }
 };

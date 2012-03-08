@@ -13,6 +13,11 @@ var isEmptyObject = require("jquery").isEmptyObject;
 log4js.addAppender(log4js.fileAppender('/sitelogs/bustime.log'));
 var logger = log4js.getLogger();
 
+var banner =
+    "\n______           _   _                \n| ___ \\         | | (_)               \n| |_\x2F \x2F_   _ ___| |_ _ _ __ ___   ___ \n| ___ \\ | | \x2F __| __| | \'_ ` _ \\ \x2F _ \\\n| |_\x2F \x2F |_| \\__ \\ |_| | | | | | |  __\x2F\n\\____\x2F \\__,_|___\x2F\\__|_|_| |_| |_|\\___|\n                                      \n";
+
+logger.info(banner);
+
 process.on('uncaughtException', function (err) {
     logger.error('Caught exception: ' + err +  err.stack);
 });

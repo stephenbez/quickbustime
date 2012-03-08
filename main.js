@@ -46,7 +46,14 @@ var logFile = fs.createWriteStream('/sitelogs/bustimeWeb.log', {flags: 'a'}); //
 
 var app = express.createServer();
 
-app.use(express.logger({stream: logFile}));
+express.logger.token('localTime', function() {
+    return new Date().toString("s");
+});
+
+app.use(express.logger({
+    stream: logFile,
+    format: ':req[X-Forwarded-For] - - [:localTime] ":method :url HTTP/:http-version" :status :res[content-length] ":referrer" ":user-agent"'
+}));
 
 app.set('view options', { layout: false });
 

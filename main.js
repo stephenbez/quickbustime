@@ -274,7 +274,7 @@ cronJob('0 59 23 * * *', function() {
 });
 
 // at 11:58pm every night send report
-cronJob('35 50 22 * * *', function() {
+cronJob('0 58 23 * * *', function() {
     var message = "Requests today: " + (bustime.startingRequests() - bustime.getRequestsLeft());
 
     var sent = throttler.tryRunCommand(function() {

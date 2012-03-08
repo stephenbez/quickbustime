@@ -51,6 +51,10 @@ exports.init = function(apikey) {
 
         getRequestsLeft: function() {
             return requests;
+        },
+
+        startingRequests: function() {
+            return startingRequests;
         }
     }
 };

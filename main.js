@@ -6,6 +6,8 @@ var bustime = require('./bustime').init(config.apiKey);
 var log4js = require('log4js');
 require("datejs");
 var cronJob = require('cron').CronJob;
+var sendEmail = require('./sendEmail').sendEmail;
+var throttler = require('./throttler');
 
 var fs = require('fs');
 var isEmptyObject = require("jquery").isEmptyObject;
@@ -269,6 +271,17 @@ app.get("*", function(req, res) {
 cronJob('0 59 23 * * *', function() {
     bustime.resetRequests();
     logger.info("Requests reset");
+});
+
+// at 11:58pm every night send report
+cronJob('35 50 22 * * *', function() {
+    var message = "Requests today: " + (bustime.startingRequests() - bustime.getRequestsLeft());
+
+    var sent = throttler.tryRunCommand(function() {
+        sendEmail(message, "");
+    });
+
+    logger.info(message);
 });
 
 var port = 3000;

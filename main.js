@@ -5,6 +5,8 @@ var config = require("./config");
 var bustime = require('./bustime').init(config.apiKey);
 var log4js = require('log4js');
 require("datejs");
+var cronJob = require('cron').CronJob;
+
 var fs = require('fs');
 var isEmptyObject = require("jquery").isEmptyObject;
 
@@ -258,10 +260,11 @@ app.get("*", function(req, res) {
     handleErrors(req, res, {});
 });
 
-setInterval(function() {
+// at 11:59pm every night, reset requests
+cronJob('0 59 23 * * *', function() {
     bustime.resetRequests();
     logger.info("Requests reset");
-}, 24 * 60 * 60 * 1000);
+});
 
 var port = 3000;
 app.listen(3000);

@@ -1,5 +1,6 @@
 var util = require('util');
 var express = require('express');
+var RedisStore = require('connect-redis')(express);
 var _ = require('underscore');
 var config = require("./config");
 var bustime = require('./bustime').init(config.apiKey);
@@ -19,6 +20,8 @@ var banner =
     "\n______           _   _                \n| ___ \\         | | (_)               \n| |_\x2F \x2F_   _ ___| |_ _ _ __ ___   ___ \n| ___ \\ | | \x2F __| __| | \'_ ` _ \\ \x2F _ \\\n| |_\x2F \x2F |_| \\__ \\ |_| | | | | | |  __\x2F\n\\____\x2F \\__,_|___\x2F\\__|_|_| |_| |_|\\___|\n                                      \n";
 
 logger.info(banner);
+
+var stopNameProvider = require("./stopNameProvider");
 
 process.on('uncaughtException', function (err) {
     logger.error('Caught exception: ' + err +  err.stack);
@@ -49,8 +52,8 @@ String.format = function() {
   return s;
 };
 
-var routeToRouteNameString = fs.readFileSync("routeToRouteName.json");
-var routeToDirectionsString = fs.readFileSync("routeToDirections.json");
+var routeToRouteNameString = fs.readFileSync("etc/routeToRouteName.json", "utf8");
+var routeToDirectionsString = fs.readFileSync("etc/routeToDirections.json", "utf8");
 var logFile = fs.createWriteStream('/sitelogs/bustimeWeb.log', {flags: 'a'}); //use {flags: 'w'} to open in write mode
 
 var app = express.createServer();
@@ -64,6 +67,12 @@ app.use(express.logger({
     format: ':req[X-Forwarded-For] - - [:localTime] ":method :url HTTP/:http-version" :status :res[content-length] ":referrer" ":user-agent"'
 }));
 
+app.use(express.bodyParser());
+app.use(express.cookieParser());
+app.use(express.session({ secret: "myBigSecret", store: new RedisStore }));
+//app.use(express.session({ secret: "keyboard dog" }));
+
+
 app.set('view options', { layout: false });
 
 app.use('/static', express.static(__dirname + '/static'));
@@ -73,10 +82,44 @@ app.get('/robots.txt', function(req, res) {
 });
 
 app.get('/', function(req, res) {
-    res.render('index.jade', {
+    var recentStops = [];
+
+    if (req.session.previousStops) {
+        var usedStops = {};
+        var chosenStops = [];
+
+        for (var i = req.session.previousStops.length - 1; i >= 0; i--) {
+            var s = req.session.previousStops[i];
+
+            // should use more than just stopid as key
+            if (!usedStops[s.stopId]) {
+                usedStops[s.stopId] = true;
+                chosenStops.push(s);
+                if (chosenStops.length === 5) break;
+            }
+        }
+
+        chosenStops.forEach(function(stop) {
+            var stopName = stopNameProvider[stop.stopId];
+
+            recentStops.push({
+                route: stop.route,
+                directionCode: stop.routeDirectionCode,
+                stopName: stopName,
+                stopId: stop.stopId
+            });
+        });
+    }
+
+    var context = {
         routeToRouteName: routeToRouteNameString,
-        routeToDirections: routeToDirectionsString
-    });
+        routeToDirections: routeToDirectionsString,
+        recentStops: recentStops
+    };
+
+    res.render('index.jade', context);
+
+    logger.info(context);
 });
 
 app.get('/getRequestsLeft', function(req, res) {
@@ -189,6 +232,7 @@ app.get('/r/:route?/:direction?', function(req, res) {
         });
 
         res.render('stops.jade', {
+            routeDirectionCode: route + "_" + req.params.direction,
             routeNameAndDirection: route + " " + direction,
             stops: stops 
         });
@@ -224,8 +268,6 @@ app.get('/s/:id', function(req, res) {
         var handleBus = function(bus) {
             stopName = bus.stpnm.replace("&", " & ");
 
-            if (selectedRoute && (bus.rt !== selectedRoute)) return;
-
             var arrivalTime = parseCtaTimeString(bus.prdtm);
             var minutesAway = getMinutesAway(arrivalTime); 
             var arrivalTimeString = arrivalTime.toString("hh:mm tt");
@@ -253,13 +295,24 @@ app.get('/s/:id', function(req, res) {
             stopNameAndDirection: stopNameAndDirection,
             predictions: predictions,
             currentTime: getCurrentTimeString(),
-            selectedRoute: selectedRoute || "all",
+            selectedRoute: selectedRoute || "all"
         };
 
         logger.info(context);
 
+        if (!req.session.previousStops) {
+            req.session.previousStops = [];
+        }
+
+        req.session.previousStops.push({
+            stopId: req.params.id,
+            route: selectedRoute,
+            routeDirectionCode: routeDirectionCode,
+            date: new Date()
+        });
+
         res.render('buses.jade', context);
-    });   
+    });
 });
 
 // Handle not found, always keep as last route

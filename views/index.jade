@@ -93,18 +93,29 @@ block head
         });
 
 block body
-    .container.
-        <h3>Route #</h3>
-        <input id="route" type="tel" name="route" class="span1"/>
+    .container
+        | <h3>Recent stops</h3>
+        - if (recentStops.length > 0)
+            each s in recentStops
+                - if (s.route)
+                    | <a href="/s/#{s.stopId}?rt=#{s.route}_#{s.directionCode}">#{s.route} #{s.directionCode} - #{s.stopName}</a><br/>
+                - else
+                    | <a href="/s/#{s.stopId}">#{s.stopName}</a><br/>
+            | <br/>
+        - else
+            | <p>No recent stops</p><br/>
 
-        <div id="routeAutoComplete">
-        </div>
+        | <h3>Route #</h3>
+        | <input id="route" type="tel" name="route" class="span1"/>
 
-        <br/>
-        <h3>Stop id</h3>
-        <div class="form-inline">
-            On the bus stop sign.  If it says Text "CTABUS XXXX", XXXX is the stop id.<br/>
-            <input id="stopId" type="tel" name="stopid" class="span1"/>
-            <button id="stopButton">Go</button><br/><br/> 
-        </div>
-        <a href="/r">List routes</a><br/>
+        | <div id="routeAutoComplete">
+        | </div>
+
+        | <br/>
+        | <h3>Stop id</h3>
+        | <div class="form-inline">
+        |     On the bus stop sign.  If it says Text "CTABUS XXXX", XXXX is the stop id.<br/>
+        |     <input id="stopId" type="tel" name="stopid" class="span1"/>
+        |     <button id="stopButton">Go</button><br/><br/>
+        | </div>
+        | <a href="/r">List routes</a><br/>

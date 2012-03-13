@@ -1,0 +1,16 @@
+QuickBusTime is a bus tracking system for the CTA implemented in node.js
+
+The main goal is to have an extremely easy to use and quick user interface.
+
+To install, first install node.js by getting nvm:
+https://github.com/creationix/nvm
+
+Follow the instructions in the README of nvm on how to install node (I've tested using v0.6.11)
+
+Run npm install
+
+Run node getAllDirections.js
+
+Install and run redis.
+
+Run node main.js

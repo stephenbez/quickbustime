@@ -8,5 +8,5 @@ block body
         | #{ routeNameAndDirection }<br/><br/>
         | Choose your stop:<br/>
         each s in stops
-            | <a href="/s/#{s.stopId}">#{s.stopName}</a><br/>
+            | <a href="/s/#{s.stopId}?rt=#{routeDirectionCode}">#{s.stopName}</a><br/>
         | <br/><a href="/">Back to homepage</a>

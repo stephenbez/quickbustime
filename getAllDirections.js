@@ -1,3 +1,7 @@
+// Running this program downloads all routes and all directions available from each route
+// The info this program downloads shouldn't change very often (adding new routes is very infrequent)
+// but should be done maybe weekly
+
 var config = require("./config");
 var bustime = require('./bustime').init(config.apiKey);
 var _ = require('underscore');

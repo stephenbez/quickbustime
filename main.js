@@ -69,9 +69,16 @@ app.use(express.logger({
 
 app.use(express.bodyParser());
 app.use(express.cookieParser());
-app.use(express.session({ secret: "myBigSecret", store: new RedisStore }));
-//app.use(express.session({ secret: "keyboard dog" }));
 
+var threeYears = 94608000000;
+
+app.use(express.session({
+    secret: "myBigSecret",
+    store: new RedisStore,
+    cookie: {
+        maxAge: threeYears
+    }
+}));
 
 app.set('view options', { layout: false });
 

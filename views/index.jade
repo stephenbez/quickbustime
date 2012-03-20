@@ -75,7 +75,7 @@ block head
                             var description = route + " - " + routeToRouteName[route] + " - " + direction;
                             var url = "/r/" + route + "/" + direction[0];
 
-                            msg += "<a href='" + url + "'>" + description + "</a><br/>";
+                            msg += "<a class='clickable' href='" + url + "'>" + description + "</a>";
                         }
                     }
                 }
@@ -98,9 +98,9 @@ block body
         - if (recentStops.length > 0)
             each s in recentStops
                 - if (s.route)
-                    | <a href="/s/#{s.stopId}?rt=#{s.route}_#{s.directionCode}">#{s.route} #{s.directionCode} - #{s.stopName}</a><br/>
+                    | <a class="clickable" href="/s/#{s.stopId}?rt=#{s.route}_#{s.directionCode}">#{s.route} #{s.directionCode} - #{s.stopName}</a>
                 - else
-                    | <a href="/s/#{s.stopId}">#{s.stopName}</a><br/>
+                    | <a class="clickable" href="/s/#{s.stopId}">#{s.stopName}</a>
             | <br/>
         - else
             | <p>No recent stops</p><br/>
@@ -113,9 +113,9 @@ block body
 
         | <br/>
         | <h3>Stop id</h3>
-        | <div class="form-inline">
+        | <div class="">
         |     On the bus stop sign.  If it says Text "CTABUS XXXX", XXXX is the stop id.<br/>
-        |     <input id="stopId" type="tel" name="stopid" class="span1"/>
-        |     <button id="stopButton">Go</button><br/><br/>
+        |     <div><input id="stopId" type="tel" name="stopid" class="span1"/></div>
+        |     <div><button id="stopButton" class="btn span1" style="margin: 0">Go</button></div><br/><br/>
         | </div>
-        | <a href="/r">List routes</a><br/>
+        | <a class="clickable" href="/r">List routes</a><br/>

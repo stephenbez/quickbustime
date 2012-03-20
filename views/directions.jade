@@ -8,7 +8,7 @@ block body
         | Choose your direction:<br/><br/>
 
         each d in directions
-            | <a href="/r/#{d.route}/#{d.stopDirection}">#{d.directionName}</a><br/>
+            | <a class="clickable" href="/r/#{d.route}/#{d.stopDirection}">#{d.directionName}</a>
 
         | <br/>
         | <a href="/">Back to homepage</a>

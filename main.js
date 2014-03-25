@@ -221,7 +221,7 @@ app.get('/r/:route?/:direction?', function(req, res) {
 
     var direction = getDirectionFromCode(req.params.direction);
 
-    bustime.request("getstops", { rt: route, dir: direction }, function(result) {
+    bustime.request("getstops", { rt: route, dir: direction.replace(" ", "") }, function(result) {
         logger.info("url: " + req.url + "\nresult: " + inspect(result));
 
         if (isError(result)) {
@@ -252,10 +252,10 @@ app.get('/s/:id', function(req, res) {
         logger.info("url: " + req.url + "\nresult: " + inspect(result));
 
         if (isError(result)) {
-            if (result.error && result.error.msg == "No service scheduled") {
+            if (result.error && (result.error.msg === "No service scheduled" || result.error.msg === "No arrival times")) {
                 handleErrors(req, res, result, "No service scheduled for this stop at this time");
             } else {
-                handleErrors(req, res, result, "Sorry that stop doesn't exist");
+                handleErrors(req, res, result, "No arrival times available");
             }
             return;
         }

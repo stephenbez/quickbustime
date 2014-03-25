@@ -7,6 +7,8 @@ https://github.com/creationix/nvm
 
 Follow the instructions in the README of nvm on how to install node (I've tested using v0.6.11)
 
+You may need to run: sudo apt-get install libexpat1-dev
+
 Run npm install
 
 Run node getAllDirections.js

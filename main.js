@@ -167,9 +167,9 @@ function isError(result) {
     return isEmptyObject(result) || result.error;
 }
 
-function handleErrors(req, res, result, message) {
-    logger.error("url", req.url, "result", result, "message", message);
-    res.render('error.jade', { message: message });
+function handleErrors(req, res, result, title, message) {
+    logger.error("url", req.url, "result", result, "title", title, "message", message);
+    res.render('error.jade', { title: title, message: message });
 }
 
 app.get('/r/:route?/:direction?', function(req, res) {
@@ -180,7 +180,7 @@ app.get('/r/:route?/:direction?', function(req, res) {
             logger.info("url: " + req.url + "\nresult: " + inspect(result));
 
             if (isError(result)) {
-                handleErrors(req, res, result);
+                handleErrors(req, res, "Error", result);
                 return;
             }
 
@@ -194,7 +194,8 @@ app.get('/r/:route?/:direction?', function(req, res) {
             logger.info("url: " + req.url + "\nresult: " + inspect(result));
             
             if (isError(result)) {
-                handleErrors(req, res, result, "Sorry that route doesn't exist");
+                var message = "Route " + route + " doesn't exist";
+                handleErrors(req, res, result, message, message);
                 return;
             }
 
@@ -225,7 +226,8 @@ app.get('/r/:route?/:direction?', function(req, res) {
         logger.info("url: " + req.url + "\nresult: " + inspect(result));
 
         if (isError(result)) {
-            handleErrors(req, res, result, "Could not find any stops for " + route + " " + direction);
+	    var message = "Could not find any stops for " + route + " " + direction;
+            handleErrors(req, res, result, message, message);
             return;
         }
 
@@ -251,23 +253,24 @@ app.get('/s/:id', function(req, res) {
     bustime.request("getpredictions", { stpid: req.params.id }, function(result) {
         logger.info("url: " + req.url + "\nresult: " + inspect(result));
 
-        if (isError(result)) {
-            if (result.error && (result.error.msg === "No service scheduled" || result.error.msg === "No arrival times")) {
-                handleErrors(req, res, result, "No service scheduled for this stop at this time");
-            } else {
-                handleErrors(req, res, result, "No arrival times available");
-            }
-            return;
-        }
-
-        var buses = result.prd;
-
         if (req.query.rt) {
             var split = req.query.rt.split("_");
             var selectedRoute = split[0];
             var routeDirectionCode = split[1];
             var routeDirection = getDirectionFromCode(split[1]);
         }
+        
+	    if (isError(result)) {
+            if (result.error && result.error.msg == "No service scheduled") {
+                handleErrors(req, res, result, "No service", "No service scheduled for this stop at this time");
+            } else {
+                handleErrors(req, res, result, "No arrival times", "No arrival times available");
+            }
+            return;
+        }
+
+        var buses = result.prd;
+
 
         var stopName = "";
         var predictions = [];
@@ -324,7 +327,7 @@ app.get('/s/:id', function(req, res) {
 
 // Handle not found, always keep as last route
 app.get("*", function(req, res) {
-    handleErrors(req, res, {});
+    handleErrors(req, res, {}, "Error", "404 not found");
 });
 
 // at 11:59pm every night, reset requests
@@ -345,6 +348,6 @@ cronJob('0 58 23 * * *', function() {
 });
 
 var port = 3000;
-app.listen(3000);
+app.listen(port);
 
 logger.info("Open up a browser to localhost:" + port);

@@ -164,7 +164,7 @@ function getDirectionFromCode(code) {
 }
 
 function isError(result) {
-    return isEmptyObject(result) || result.error;
+    return isEmptyObject(result) || result.error || result == 0;
 }
 
 function handleErrors(req, res, result, title, message) {

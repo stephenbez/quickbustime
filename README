@@ -13,6 +13,8 @@ Run npm install
 
 Run node getAllDirections.js
 
+Copy the stops.txt from "CTA - System Information - Developer Tool: GTFS Data": https://data.cityofchicago.org/Transportation/CTA-System-Information-Developer-Tool-GTFS-Data/sp6w-yusg?
+
 Install and run redis.
 
 Run node main.js

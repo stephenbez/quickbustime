@@ -40,7 +40,7 @@ exports.init = function(apikey) {
             };
 
             httpGetWholeResponse(options, function(response) {
-                var obj = parser.toJson(response, { object: true, sanitize: true});
+                var obj = parser.toJson(response, { object: true, sanitize: false});
                 callback(obj["bustime-response"]);
             });
         },
